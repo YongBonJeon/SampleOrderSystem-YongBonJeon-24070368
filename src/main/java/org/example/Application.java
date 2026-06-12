@@ -84,6 +84,7 @@ public class Application {
         );
 
         ReleaseController releaseController = new ReleaseController(
+                sampleRepository,
                 orderRepository,
                 new ReleaseInputView(scanner),
                 new ReleaseOutputView(System.out)

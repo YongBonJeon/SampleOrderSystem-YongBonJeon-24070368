@@ -85,6 +85,7 @@ class MainControllerTest {
     private ReleaseController stubReleaseController() {
         Scanner scanner = new Scanner(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)));
         return new ReleaseController(
+                new InMemorySampleRepository(),
                 new InMemoryOrderRepository(),
                 new ReleaseInputView(scanner),
                 new ReleaseOutputView(new PrintStream(new ByteArrayOutputStream()))

@@ -112,7 +112,7 @@ public void showStockStatus(List<Sample> samples,
 
 ```java
 public class ReleaseController {
-    // 생성자 주입: OrderRepository, ReleaseInputView, ReleaseOutputView
+    // 생성자 주입: SampleRepository, OrderRepository, ReleaseInputView, ReleaseOutputView
 
     public void run()
     // 1. CONFIRMED 주문 목록 조회
@@ -120,6 +120,8 @@ public class ReleaseController {
     // 3. 번호 목록 출력 후 "출고할 번호" 입력 (0: 취소)
     // 4. "0" → 취소 복귀
     // 5. 유효 번호 → RELEASE 전환 + 완료 메시지 (주문번호·수량·처리일시·상태)
+    //    PRODUCING 경로(actualQty > 0) → 출고 시 order.quantity만큼 재고 차감
+    //    CONFIRMED 직접 경로(actualQty == 0) → 승인 시 이미 차감, 재고 변경 없음
 }
 ```
 

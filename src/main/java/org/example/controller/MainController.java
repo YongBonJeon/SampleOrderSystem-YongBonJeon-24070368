@@ -40,8 +40,9 @@ public class MainController {
 
     public void run() {
         while (true) {
-            int sampleCount = sampleRepository.findAll().size();
-            int totalStock = sampleRepository.findAll().stream().mapToInt(s -> s.getStock()).sum();
+            var samples = sampleRepository.findAll();
+            int sampleCount = samples.size();
+            int totalStock = samples.stream().mapToInt(s -> s.getStock()).sum();
             int orderCount = (int) orderRepository.findAll().stream()
                     .filter(o -> o.getStatus() != OrderStatus.REJECTED).count();
             int producingCount = orderRepository.findByStatus(OrderStatus.PRODUCING).size();
