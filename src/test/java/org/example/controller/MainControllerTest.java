@@ -10,6 +10,7 @@ import org.example.view.InputView;
 import org.example.view.OrderInputView;
 import org.example.view.OrderOutputView;
 import org.example.view.OutputView;
+import org.example.view.ProductionLineOutputView;
 import org.example.view.SampleInputView;
 import org.example.view.SampleOutputView;
 import org.junit.jupiter.api.Test;
@@ -55,6 +56,15 @@ class MainControllerTest {
         );
     }
 
+    private ProductionLineController stubProductionLineController() {
+        return new ProductionLineController(
+                new InMemorySampleRepository(),
+                new InMemoryOrderRepository(),
+                new ProductionQueue(),
+                new ProductionLineOutputView(new PrintStream(new ByteArrayOutputStream()))
+        );
+    }
+
     private MainController controllerWith(String input) {
         InputView inputView = new InputView(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -66,7 +76,8 @@ class MainControllerTest {
                 outputView,
                 stubSampleController(),
                 stubOrderController(),
-                stubApprovalController()
+                stubApprovalController(),
+                stubProductionLineController()
         );
     }
 
@@ -81,7 +92,8 @@ class MainControllerTest {
                 outputView,
                 stubSampleController(),
                 stubOrderController(),
-                stubApprovalController()
+                stubApprovalController(),
+                stubProductionLineController()
         ).run();
         return baos.toString(StandardCharsets.UTF_8);
     }
@@ -108,7 +120,7 @@ class MainControllerTest {
 
     @Test
     void run_withMenuInput_printsNotImplementedMessage() {
-        String output = outputOf("4\n0\n"); // 메뉴 4(모니터링)은 아직 미구현
+        String output = outputOf("6\n0\n"); // 메뉴 6(출고 처리)은 아직 미구현
 
         assertTrue(output.contains("미구현") || output.contains("준비"),
                 "미구현 메뉴는 안내 메시지를 출력해야 한다");

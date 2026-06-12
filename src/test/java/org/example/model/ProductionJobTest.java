@@ -3,6 +3,8 @@ package org.example.model;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProductionJobTest {
@@ -23,5 +25,32 @@ class ProductionJobTest {
         ProductionJob job = new ProductionJob("ORD-20260612-0001", "S-001", 170, 0.9, 0.5);
 
         assertEquals(105.0, job.getTotalTime());
+    }
+
+    @Test
+    @DisplayName("avgProductionTime이 getter로 조회된다")
+    void avgProductionTime_storedCorrectly() {
+        ProductionJob job = new ProductionJob("ORD-20260612-0001", "S-001", 170, 0.9, 0.5);
+
+        assertEquals(0.5, job.getAvgProductionTime());
+    }
+
+    @Test
+    @DisplayName("생성 직후 startedAt은 null이다")
+    void startedAt_defaultIsNull() {
+        ProductionJob job = new ProductionJob("ORD-20260612-0001", "S-001", 170, 0.9, 0.5);
+
+        assertNull(job.getStartedAt());
+    }
+
+    @Test
+    @DisplayName("setStartedAt 호출 후 getStartedAt이 동일 값을 반환한다")
+    void setStartedAt_updatesField() {
+        ProductionJob job = new ProductionJob("ORD-20260612-0001", "S-001", 170, 0.9, 0.5);
+        LocalDateTime now = LocalDateTime.of(2026, 6, 12, 9, 0);
+
+        job.setStartedAt(now);
+
+        assertEquals(now, job.getStartedAt());
     }
 }
