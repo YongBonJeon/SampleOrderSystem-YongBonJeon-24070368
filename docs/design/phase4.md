@@ -93,7 +93,7 @@ public class ApprovalController {
 
     public void run() {
         // RESERVED 목록 조회 → 비어있으면 안내 후 복귀
-        // 목록 출력 → 주문번호 입력 → 승인(Y) 또는 거절(N) 선택
+        // 목록 출력 → 번호 입력 (0: 취소) → 재고 현황 표시 → 승인(Y) 또는 거절(N) 선택
         // approve() 또는 reject() 분기
     }
 
@@ -129,8 +129,8 @@ public class ApprovalController {
 public class ApprovalInputView {
     // 생성자: Scanner 주입
 
-    public String readOrderId()    // 처리할 주문번호 입력
-    public String readDecision()   // Y(승인) / N(거절) 입력
+    public int readSelectionNumber()  // "승인할 번호 (0: 취소) > " 프롬프트, 정수 반환
+    public String readDecision()      // Y(승인) / N(거절) 입력
 }
 ```
 
@@ -140,17 +140,17 @@ public class ApprovalInputView {
 public class ApprovalOutputView {
     // 생성자: PrintStream 주입
 
-    public void showReservedList(List<Order> orders)
-    // RESERVED 주문 목록 출력
+    public void showReservedList(List<Order> orders, Map<String, String> sampleNames)
+    // RESERVED 주문 목록 출력 (번호·주문번호·고객·시료명·수량·상태 컬럼)
 
     public void showNoReservedOrders()
     // 대기 주문 없음 메시지
 
-    public void showOrderNotFound(String orderId)
-    // 입력한 주문번호 없음 오류
+    public void showInvalidSelection()
+    // 범위 외 번호 입력 오류
 
-    public void showOrderNotReserved(String orderId)
-    // RESERVED 상태가 아닌 주문 선택 시 오류
+    public void showStockInfo(int stock, int orderQty)
+    // 재고 현황: 현재 재고 / 주문 수량 / 충분·부족 표시
 
     public void showConfirmed(Order order)
     // 재고 충분 → CONFIRMED 전환 결과
@@ -168,37 +168,46 @@ public class ApprovalOutputView {
 ### RESERVED 목록
 
 ```
-=== 주문 승인 / 거절 ===
-대기 주문 목록 (총 2건)
---------------------------------------------------------------
- 주문번호              시료 ID   고객명           수량
- ORD-20260612-0001    S-001     한국반도체연구소  200 ea
- ORD-20260612-0002    S-002     서울대학교        50 ea
---------------------------------------------------------------
-처리할 주문번호 > ORD-20260612-0001
+승인 대기 중인 예약 목록  (RESERVED)
+------------------------------------------------------------------------
+ 번호  주문번호              고객              시료                수량     상태
+ [1]   ORD-20260612-0001    한국반도체연구소  산화막 웨이퍼-SiO2   200 ea   RESERVED
+ [2]   ORD-20260612-0002    서울대학교        실리콘 웨이퍼-8인치   50 ea   RESERVED
+------------------------------------------------------------------------
+승인할 번호 (0: 취소) > 1
+재고 현황: 현재 재고 480 ea  /  주문 수량 200 ea  →  재고 충분
 승인(Y) / 거절(N) > Y
 ```
 
 ### 재고 충분 → CONFIRMED
 
 ```
-[재고 확인] 현재 재고: 480 ea / 주문 수량: 200 ea → 재고 충분
+재고 현황: 현재 재고 480 ea  /  주문 수량 200 ea  →  재고 충분
 주문 ORD-20260612-0001 승인 완료 → CONFIRMED
 ```
 
 ### 재고 부족 → PRODUCING
 
 ```
-[재고 확인] 현재 재고: 30 ea / 주문 수량: 200 ea → 재고 부족 (부족분: 170 ea)
-생산 등록: 실 생산량 190 ea / 총 생산시간 95.0 min
+재고 현황: 현재 재고 30 ea  /  주문 수량 200 ea  →  재고 부족
+생산 등록: 실 생산량 210 ea / 총 생산시간 105.0 min
 주문 ORD-20260612-0001 승인 완료 → PRODUCING
 ```
 
 ### 거절
 
 ```
+승인할 번호 (0: 취소) > 1
+재고 현황: 현재 재고 480 ea  /  주문 수량 200 ea  →  재고 충분
 승인(Y) / 거절(N) > N
 주문 ORD-20260612-0001 거절 완료 → REJECTED
+```
+
+### 0 입력 시 취소
+
+```
+승인할 번호 (0: 취소) > 0
+(메인 메뉴로 복귀)
 ```
 
 ## 비즈니스 규칙

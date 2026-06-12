@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -34,7 +35,7 @@ class ApprovalOutputViewTest {
         );
         Context ctx = buildContext();
 
-        ctx.view().showReservedList(orders);
+        ctx.view().showReservedList(orders, Map.of("S-001", "Silicon-Wafer"));
 
         assertTrue(output(ctx).contains("ORD-20260612-0001"));
     }

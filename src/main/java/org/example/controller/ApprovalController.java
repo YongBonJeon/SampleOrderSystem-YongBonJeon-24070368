@@ -11,6 +11,8 @@ import org.example.view.ApprovalInputView;
 import org.example.view.ApprovalOutputView;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ApprovalController {
 
@@ -36,18 +38,20 @@ public class ApprovalController {
             return;
         }
 
-        out.showReservedList(reserved);
-        String orderId = in.readOrderId();
+        Map<String, String> sampleNames = sampleRepository.findAll().stream()
+                .collect(Collectors.toMap(Sample::getId, Sample::getName));
+        out.showReservedList(reserved, sampleNames);
 
-        Order order = orderRepository.findById(orderId).orElse(null);
-        if (order == null) {
-            out.showOrderNotFound(orderId);
+        int selection = in.readSelectionNumber();
+        if (selection == 0) return;
+        if (selection < 1 || selection > reserved.size()) {
+            out.showInvalidSelection();
             return;
         }
-        if (order.getStatus() != OrderStatus.RESERVED) {
-            out.showOrderNotReserved(orderId);
-            return;
-        }
+
+        Order order = reserved.get(selection - 1);
+        Sample selectedSample = sampleRepository.findById(order.getSampleId()).get();
+        out.showStockInfo(selectedSample.getStock(), order.getQuantity());
 
         String decision = in.readDecision();
         if ("Y".equals(decision)) {
@@ -73,7 +77,7 @@ public class ApprovalController {
             productionQueue.enqueue(job);
             order.setStatus(OrderStatus.PRODUCING);
             order.setActualQty(job.getActualQty());
-            order.setStartedAt(job.getStartedAt()); // 큐 첫 번째면 실제 시각, 대기면 null
+            order.setStartedAt(job.getStartedAt());
             orderRepository.update(order);
             out.showProducing(order, job);
         }

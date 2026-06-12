@@ -5,6 +5,7 @@ import org.example.model.ProductionJob;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Map;
 
 public class ApprovalOutputView {
 
@@ -14,27 +15,35 @@ public class ApprovalOutputView {
         this.out = out;
     }
 
-    public void showReservedList(List<Order> orders) {
-        out.printf("%n대기 주문 목록 (총 %d건)%n", orders.size());
-        out.println("--------------------------------------------------------------");
-        out.println(" 주문번호              시료 ID   고객명           수량");
+    public void showReservedList(List<Order> orders, Map<String, String> sampleNames) {
+        out.printf("%n승인 대기 중인 예약 목록  (RESERVED)%n");
+        out.println("------------------------------------------------------------------------");
+        out.println(" 번호  주문번호              고객              시료                수량     상태");
+        int i = 1;
         for (Order o : orders) {
-            out.printf(" %-22s %-9s %s %d ea%n",
-                    o.getOrderId(), o.getSampleId(), padRight(o.getCustomerName(), 16), o.getQuantity());
+            String sampleName = sampleNames.getOrDefault(o.getSampleId(), o.getSampleId());
+            out.printf(" [%d]   %-22s %s %s %d ea   %s%n",
+                    i++,
+                    o.getOrderId(),
+                    padRight(o.getCustomerName(), 16),
+                    padRight(sampleName, 20),
+                    o.getQuantity(),
+                    o.getStatus());
         }
-        out.println("--------------------------------------------------------------");
+        out.println("------------------------------------------------------------------------");
     }
 
     public void showNoReservedOrders() {
         out.println("대기 중인 주문이 없습니다.");
     }
 
-    public void showOrderNotFound(String orderId) {
-        out.printf("[ERROR] 존재하지 않는 주문번호입니다: %s%n", orderId);
+    public void showInvalidSelection() {
+        out.println("[ERROR] 올바른 번호를 입력하세요.");
     }
 
-    public void showOrderNotReserved(String orderId) {
-        out.printf("[ERROR] RESERVED 상태가 아닌 주문입니다: %s%n", orderId);
+    public void showStockInfo(int stock, int orderQty) {
+        String status = stock >= orderQty ? "재고 충분" : "재고 부족";
+        out.printf("재고 현황: 현재 재고 %d ea  /  주문 수량 %d ea  →  %s%n", stock, orderQty, status);
     }
 
     public void showConfirmed(Order order) {

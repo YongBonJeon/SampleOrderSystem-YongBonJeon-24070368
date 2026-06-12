@@ -10,9 +10,13 @@ public class ApprovalInputView {
         this.scanner = scanner;
     }
 
-    public String readOrderId() {
-        System.out.print("처리할 주문번호 > ");
-        return scanner.nextLine().trim();
+    public int readSelectionNumber() {
+        System.out.print("승인할 번호 (0: 취소) > ");
+        try {
+            return Integer.parseInt(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 
     public String readDecision() {

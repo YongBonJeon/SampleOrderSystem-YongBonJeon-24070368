@@ -41,6 +41,98 @@ class ApprovalControllerTest {
     }
 
     @Test
+    @DisplayName("번호 선택 후 재고가 충분할 때 재고 현황이 출력된다")
+    void run_showsStockInfo_whenStockSufficient() {
+        InMemorySampleRepository sampleRepo = new InMemorySampleRepository();
+        sampleRepo.save(new Sample("S-001", "산화막 웨이퍼-SiO2", 0.5, 0.9, 480));
+
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+        orderRepo.save(new Order("ORD-20260612-0001", "S-001", "한국반도체연구소", 200, OrderStatus.RESERVED));
+
+        String input = "1\nY\n";
+        Context ctx = buildContext(input, sampleRepo, orderRepo, new ProductionQueue());
+
+        ctx.controller().run();
+
+        String output = ctx.output().toString(StandardCharsets.UTF_8);
+        assertTrue(output.contains("480"), "현재 재고");
+        assertTrue(output.contains("200"), "주문 수량");
+        assertTrue(output.contains("충분"), "재고 상태");
+    }
+
+    @Test
+    @DisplayName("번호 선택 후 재고가 부족할 때 부족 현황이 출력된다")
+    void run_showsStockInfo_whenStockInsufficient() {
+        InMemorySampleRepository sampleRepo = new InMemorySampleRepository();
+        sampleRepo.save(new Sample("S-001", "산화막 웨이퍼-SiO2", 0.5, 0.9, 30));
+
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+        orderRepo.save(new Order("ORD-20260612-0001", "S-001", "한국반도체연구소", 200, OrderStatus.RESERVED));
+
+        String input = "1\nY\n";
+        Context ctx = buildContext(input, sampleRepo, orderRepo, new ProductionQueue());
+
+        ctx.controller().run();
+
+        String output = ctx.output().toString(StandardCharsets.UTF_8);
+        assertTrue(output.contains("30"), "현재 재고");
+        assertTrue(output.contains("200"), "주문 수량");
+        assertTrue(output.contains("부족"), "재고 상태");
+    }
+
+    @Test
+    @DisplayName("번호 입력으로 주문을 선택해 거절할 수 있다")
+    void run_selectByNumber_rejectsSelectedOrder() {
+        InMemorySampleRepository sampleRepo = new InMemorySampleRepository();
+        sampleRepo.save(new Sample("S-001", "산화막 웨이퍼-SiO2", 0.5, 0.9, 480));
+
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+        orderRepo.save(new Order("ORD-20260612-0001", "S-001", "한국반도체연구소", 200, OrderStatus.RESERVED));
+
+        String input = "1\nN\n";
+        Context ctx = buildContext(input, sampleRepo, orderRepo, new ProductionQueue());
+
+        ctx.controller().run();
+
+        assertEquals(OrderStatus.REJECTED, orderRepo.findById("ORD-20260612-0001").get().getStatus());
+    }
+
+    @Test
+    @DisplayName("0 입력 시 취소하고 주문 상태가 변경되지 않는다")
+    void run_cancelWithZero_doesNotChangeOrderStatus() {
+        InMemorySampleRepository sampleRepo = new InMemorySampleRepository();
+        sampleRepo.save(new Sample("S-001", "산화막 웨이퍼-SiO2", 0.5, 0.9, 480));
+
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+        orderRepo.save(new Order("ORD-20260612-0001", "S-001", "한국반도체연구소", 200, OrderStatus.RESERVED));
+
+        String input = "0\n";
+        Context ctx = buildContext(input, sampleRepo, orderRepo, new ProductionQueue());
+
+        ctx.controller().run();
+
+        assertEquals(OrderStatus.RESERVED, orderRepo.findById("ORD-20260612-0001").get().getStatus());
+    }
+
+    @Test
+    @DisplayName("예약 목록에 시료명이 포함된다")
+    void run_showsReservedList_includesSampleName() {
+        InMemorySampleRepository sampleRepo = new InMemorySampleRepository();
+        sampleRepo.save(new Sample("S-001", "산화막 웨이퍼-SiO2", 0.5, 0.9, 480));
+
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+        orderRepo.save(new Order("ORD-20260612-0001", "S-001", "한국반도체연구소", 200, OrderStatus.RESERVED));
+
+        String input = "0\n";
+        Context ctx = buildContext(input, sampleRepo, orderRepo, new ProductionQueue());
+
+        ctx.controller().run();
+
+        String output = ctx.output().toString(StandardCharsets.UTF_8);
+        assertTrue(output.contains("산화막 웨이퍼-SiO2"));
+    }
+
+    @Test
     @DisplayName("대기 주문이 없을 때 안내 메시지를 출력한다")
     void run_withNoReservedOrders_showsEmptyMessage() {
         InMemorySampleRepository sampleRepo = new InMemorySampleRepository();
@@ -63,7 +155,7 @@ class ApprovalControllerTest {
         InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
         orderRepo.save(new Order("ORD-20260612-0001", "S-001", "한국반도체연구소", 200, OrderStatus.RESERVED));
 
-        String input = "ORD-20260612-0001\nN\n";
+        String input = "1\nN\n";
         Context ctx = buildContext(input, sampleRepo, orderRepo, new ProductionQueue());
 
         ctx.controller().run();
@@ -81,7 +173,7 @@ class ApprovalControllerTest {
         orderRepo.save(new Order("ORD-20260612-0001", "S-001", "한국반도체연구소", 200, OrderStatus.RESERVED));
 
         ProductionQueue queue = new ProductionQueue();
-        String input = "ORD-20260612-0001\nY\n";
+        String input = "1\nY\n";
         Context ctx = buildContext(input, sampleRepo, orderRepo, queue);
 
         ctx.controller().run();
@@ -101,8 +193,7 @@ class ApprovalControllerTest {
         InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
         orderRepo.save(new Order("ORD-20260612-0001", "S-001", "한국반도체연구소", 200, OrderStatus.RESERVED));
 
-        // 주문번호 입력, Y(승인)
-        String input = "ORD-20260612-0001\nY\n";
+        String input = "1\nY\n";
         Context ctx = buildContext(input, sampleRepo, orderRepo, new ProductionQueue());
 
         ctx.controller().run();
