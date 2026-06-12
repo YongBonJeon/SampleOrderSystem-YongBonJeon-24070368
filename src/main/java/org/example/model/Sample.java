@@ -1,6 +1,7 @@
 package org.example.model;
 
-public class Sample {
+public class Sample implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
     private String id;
     private String name;
     private double avgProductionTime;

@@ -2,7 +2,8 @@ package org.example.model;
 
 import java.time.LocalDateTime;
 
-public class Order {
+public class Order implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
     private String orderId;
     private String sampleId;
     private String customerName;

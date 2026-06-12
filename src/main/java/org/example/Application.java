@@ -7,10 +7,11 @@ import org.example.controller.OrderController;
 import org.example.controller.ProductionLineController;
 import org.example.controller.ReleaseController;
 import org.example.controller.SampleController;
-import org.example.model.Sample;
+import org.example.persistence.PersistenceType;
+import org.example.persistence.RepositoryFactory;
 import org.example.queue.ProductionQueue;
-import org.example.repository.impl.InMemoryOrderRepository;
-import org.example.repository.impl.InMemorySampleRepository;
+import org.example.repository.OrderRepository;
+import org.example.repository.SampleRepository;
 import org.example.util.OrderIdGenerator;
 import org.example.view.ApprovalInputView;
 import org.example.view.ApprovalOutputView;
@@ -31,12 +32,12 @@ import java.util.Scanner;
 public class Application {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        InMemorySampleRepository sampleRepository = new InMemorySampleRepository();
-        InMemoryOrderRepository orderRepository = new InMemoryOrderRepository();
+        PersistenceType type = PersistenceType.fromString(
+                System.getProperty("persistence", "FILE"));
+        RepositoryFactory factory = new RepositoryFactory(type);
+        SampleRepository sampleRepository = factory.createSampleRepository();
+        OrderRepository orderRepository = factory.createOrderRepository();
         ProductionQueue productionQueue = new ProductionQueue();
-
-        // TODO(Phase 7): 영속성 구현 후 제거
-        loadDummySamples(sampleRepository);
 
         SampleController sampleController = new SampleController(
                 sampleRepository,
@@ -94,12 +95,4 @@ public class Application {
         ).run();
     }
 
-    // TODO(Phase 7): 영속성 구현 후 제거
-    private static void loadDummySamples(InMemorySampleRepository repo) {
-        repo.save(new Sample("S-001", "SiC 파워기판-6인치",   0.80, 0.92, 120));
-        repo.save(new Sample("S-002", "산화막 웨이퍼-SiO2",   0.60, 0.88,  50));
-        repo.save(new Sample("S-003", "GaN 에피택셜-4인치",   1.20, 0.85,  30));
-        repo.save(new Sample("S-004", "실리콘 웨이퍼-8인치",  0.45, 0.95, 200));
-        repo.save(new Sample("S-005", "SiC 쇼트키 다이오드",  0.30, 0.90,   0));
-    }
 }
