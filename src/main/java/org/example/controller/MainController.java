@@ -1,9 +1,12 @@
 package org.example.controller;
 
+import org.example.model.OrderStatus;
 import org.example.repository.OrderRepository;
 import org.example.repository.SampleRepository;
 import org.example.view.InputView;
 import org.example.view.OutputView;
+
+import java.time.LocalDateTime;
 
 public class MainController {
     private final SampleRepository sampleRepository;
@@ -37,7 +40,12 @@ public class MainController {
 
     public void run() {
         while (true) {
-            out.showMainMenu();
+            int sampleCount = sampleRepository.findAll().size();
+            int totalStock = sampleRepository.findAll().stream().mapToInt(s -> s.getStock()).sum();
+            int orderCount = (int) orderRepository.findAll().stream()
+                    .filter(o -> o.getStatus() != OrderStatus.REJECTED).count();
+            int producingCount = orderRepository.findByStatus(OrderStatus.PRODUCING).size();
+            out.showMainMenu(sampleCount, totalStock, orderCount, producingCount, LocalDateTime.now());
             String input = in.readLine();
             switch (input) {
                 case "1" -> sampleController.run();

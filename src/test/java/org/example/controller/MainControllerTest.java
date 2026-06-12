@@ -1,5 +1,8 @@
 package org.example.controller;
 
+import org.example.model.Order;
+import org.example.model.OrderStatus;
+import org.example.model.Sample;
 import org.example.queue.ProductionQueue;
 import org.example.repository.impl.InMemoryOrderRepository;
 import org.example.repository.impl.InMemorySampleRepository;
@@ -123,6 +126,33 @@ class MainControllerTest {
                 stubReleaseController()
         ).run();
         return baos.toString(StandardCharsets.UTF_8);
+    }
+
+    @Test
+    void showMainMenu_displaysSystemStatus() {
+        InMemorySampleRepository sampleRepo = new InMemorySampleRepository();
+        sampleRepo.save(new Sample("S-001", "웨이퍼A", 0.5, 0.9, 10));
+        sampleRepo.save(new Sample("S-002", "웨이퍼B", 0.5, 0.9, 20));
+
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+        orderRepo.save(new Order("ORD-001", "S-001", "고객A", 5, OrderStatus.RESERVED));
+        orderRepo.save(new Order("ORD-002", "S-001", "고객B", 5, OrderStatus.RESERVED));
+        orderRepo.save(new Order("ORD-003", "S-002", "고객C", 5, OrderStatus.PRODUCING));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        InputView inputView = new InputView(new ByteArrayInputStream("0\n".getBytes(StandardCharsets.UTF_8)));
+        OutputView outputView = new OutputView(new PrintStream(baos));
+        new MainController(
+                sampleRepo, orderRepo, inputView, outputView,
+                stubSampleController(), stubOrderController(), stubApprovalController(),
+                stubProductionLineController(), stubMonitoringController(), stubReleaseController()
+        ).run();
+
+        String output = baos.toString(StandardCharsets.UTF_8);
+        assertTrue(output.contains("2종"), "등록 시료 수");
+        assertTrue(output.contains("30 ea"), "총 재고");
+        assertTrue(output.contains("3건"), "전체 주문 수");
+        assertTrue(output.contains("1건 대기"), "생산라인 대기 수");
     }
 
     @Test
