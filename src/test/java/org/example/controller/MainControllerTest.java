@@ -4,39 +4,54 @@ import org.example.repository.impl.InMemoryOrderRepository;
 import org.example.repository.impl.InMemorySampleRepository;
 import org.example.view.InputView;
 import org.example.view.OutputView;
+import org.example.view.SampleInputView;
+import org.example.view.SampleOutputView;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MainControllerTest {
 
+    private SampleController stubSampleController() {
+        Scanner scanner = new Scanner(new ByteArrayInputStream("0\n".getBytes(StandardCharsets.UTF_8)));
+        return new SampleController(
+                new InMemorySampleRepository(),
+                new SampleInputView(scanner),
+                new SampleOutputView(new PrintStream(new ByteArrayOutputStream()))
+        );
+    }
+
     private MainController controllerWith(String input) {
-        InputView inputView = new InputView(new ByteArrayInputStream(input.getBytes()));
+        InputView inputView = new InputView(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputView outputView = new OutputView(new PrintStream(baos));
         return new MainController(
                 new InMemorySampleRepository(),
                 new InMemoryOrderRepository(),
                 inputView,
-                outputView
+                outputView,
+                stubSampleController()
         );
     }
 
     private String outputOf(String input) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        InputView inputView = new InputView(new ByteArrayInputStream(input.getBytes()));
+        InputView inputView = new InputView(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
         OutputView outputView = new OutputView(new PrintStream(baos));
         new MainController(
                 new InMemorySampleRepository(),
                 new InMemoryOrderRepository(),
                 inputView,
-                outputView
+                outputView,
+                stubSampleController()
         ).run();
-        return baos.toString();
+        return baos.toString(StandardCharsets.UTF_8);
     }
 
     @Test
@@ -61,7 +76,7 @@ class MainControllerTest {
 
     @Test
     void run_withMenuInput_printsNotImplementedMessage() {
-        String output = outputOf("1\n0\n");
+        String output = outputOf("2\n0\n"); // 메뉴 2는 Phase 2에서 미구현
 
         assertTrue(output.contains("미구현") || output.contains("준비"),
                 "미구현 메뉴는 안내 메시지를 출력해야 한다");

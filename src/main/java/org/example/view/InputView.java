@@ -14,6 +14,10 @@ public class InputView {
         this.scanner = new Scanner(in);
     }
 
+    public InputView(Scanner scanner) {
+        this.scanner = scanner;
+    }
+
     public String readLine() {
         return scanner.hasNextLine() ? scanner.nextLine().trim() : "";
     }
