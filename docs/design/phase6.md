@@ -81,8 +81,10 @@ else                     → SURPLUS  (reservedQty == 0인 경우 포함)
 **잔여율 계산:**
 
 ```
-잔여율(%) = stock / (stock + reservedQty) * 100
-           stock + reservedQty == 0 이면 0%
+대기 수요 = RESERVED 총량 + PRODUCING 총량
+잔여율(%) = min(stock / 대기 수요, 1.0) * 100
+           대기 수요 == 0이고 stock > 0 이면 100%
+           대기 수요 == 0이고 stock == 0 이면 0%
 ```
 
 **집계 대상 상태:** `RESERVED` / `PRODUCING` / `CONFIRMED` / `RELEASE`

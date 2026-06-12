@@ -29,6 +29,7 @@ public class Order implements java.io.Serializable {
     public OrderStatus getStatus()    { return status; }
     public void setStatus(OrderStatus status) { this.status = status; }
     public LocalDateTime getOrderedAt() { return orderedAt; }
+    public void setOrderedAt(LocalDateTime orderedAt) { this.orderedAt = orderedAt; }
     public int getActualQty()                        { return actualQty; }
     public void setActualQty(int actualQty)          { this.actualQty = actualQty; }
     public LocalDateTime getStartedAt()              { return startedAt; }

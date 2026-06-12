@@ -98,4 +98,61 @@ class MonitoringControllerTest {
 
         assertTrue(output(ctx).contains("여유"));
     }
+
+    @Test
+    @DisplayName("재고가 RESERVED 총량 이상이면 잔여율 100%로 표시된다")
+    void remainingRate_stockCoversReserved() {
+        InMemorySampleRepository sampleRepo = new InMemorySampleRepository();
+        sampleRepo.save(new Sample("S-001", "웨이퍼A", 0.5, 0.9, 10));
+
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+        orderRepo.save(new Order("ORD-001", "S-001", "고객A", 5, OrderStatus.RESERVED));
+
+        Context ctx = buildContext("2\n0\n", sampleRepo, orderRepo);
+        ctx.controller().run();
+
+        assertTrue(output(ctx).contains("100%"));
+    }
+
+    @Test
+    @DisplayName("재고가 RESERVED 총량보다 적으면 잔여율이 비율로 표시된다")
+    void remainingRate_stockShort() {
+        InMemorySampleRepository sampleRepo = new InMemorySampleRepository();
+        sampleRepo.save(new Sample("S-001", "웨이퍼A", 0.5, 0.9, 3));
+
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+        orderRepo.save(new Order("ORD-001", "S-001", "고객A", 10, OrderStatus.RESERVED));
+
+        Context ctx = buildContext("2\n0\n", sampleRepo, orderRepo);
+        ctx.controller().run();
+
+        assertTrue(output(ctx).contains(" 30%"));
+    }
+
+    @Test
+    @DisplayName("PRODUCING 주문도 잔여율 분모에 포함된다")
+    void remainingRate_includesProducingOrders() {
+        InMemorySampleRepository sampleRepo = new InMemorySampleRepository();
+        sampleRepo.save(new Sample("S-001", "웨이퍼A", 0.5, 0.9, 3));
+
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+        orderRepo.save(new Order("ORD-001", "S-001", "고객A", 10, OrderStatus.PRODUCING));
+
+        Context ctx = buildContext("2\n0\n", sampleRepo, orderRepo);
+        ctx.controller().run();
+
+        assertTrue(output(ctx).contains(" 30%"));
+    }
+
+    @Test
+    @DisplayName("RESERVED 주문이 없으면 잔여율 100%로 표시된다")
+    void remainingRate_noReservedOrders() {
+        InMemorySampleRepository sampleRepo = new InMemorySampleRepository();
+        sampleRepo.save(new Sample("S-001", "웨이퍼A", 0.5, 0.9, 5));
+
+        Context ctx = buildContext("2\n0\n", sampleRepo, new InMemoryOrderRepository());
+        ctx.controller().run();
+
+        assertTrue(output(ctx).contains("100%"));
+    }
 }

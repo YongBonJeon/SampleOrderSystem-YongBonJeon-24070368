@@ -52,9 +52,11 @@ public class MonitoringController {
 
     private void showStockStatus() {
         List<Sample> samples = sampleRepository.findAll();
-        List<Order> reservedOrders = orderRepository.findByStatus(OrderStatus.RESERVED);
+        List<Order> pendingOrders = new java.util.ArrayList<>();
+        pendingOrders.addAll(orderRepository.findByStatus(OrderStatus.RESERVED));
+        pendingOrders.addAll(orderRepository.findByStatus(OrderStatus.PRODUCING));
 
-        Map<String, Integer> reservedQtyById = reservedOrders.stream()
+        Map<String, Integer> reservedQtyById = pendingOrders.stream()
                 .collect(Collectors.groupingBy(Order::getSampleId,
                         Collectors.summingInt(Order::getQuantity)));
 
@@ -65,8 +67,8 @@ public class MonitoringController {
         Map<String, Double> remainingRates = samples.stream()
                 .collect(Collectors.toMap(Sample::getId, s -> {
                     int reserved = reservedQtyById.getOrDefault(s.getId(), 0);
-                    int total = s.getStock() + reserved;
-                    return total == 0 ? 0.0 : (double) s.getStock() / total * 100.0;
+                    if (reserved == 0) return s.getStock() > 0 ? 100.0 : 0.0;
+                    return Math.min((double) s.getStock() / reserved * 100.0, 100.0);
                 }));
 
         out.showStockStatus(samples, levels, remainingRates);

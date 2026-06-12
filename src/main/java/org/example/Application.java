@@ -28,7 +28,10 @@ import org.example.view.ReleaseOutputView;
 import org.example.view.SampleInputView;
 import org.example.view.SampleOutputView;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Application {
     public static void main(String[] args) {
@@ -47,10 +50,13 @@ public class Application {
                 new SampleOutputView(System.out)
         );
 
+        List<String> existingOrderIds = orderRepository.findAll().stream()
+                .map(o -> o.getOrderId())
+                .collect(Collectors.toList());
         OrderController orderController = new OrderController(
                 sampleRepository,
                 orderRepository,
-                new OrderIdGenerator(),
+                new OrderIdGenerator(LocalDate.now(), existingOrderIds),
                 new OrderInputView(scanner),
                 new OrderOutputView(System.out)
         );

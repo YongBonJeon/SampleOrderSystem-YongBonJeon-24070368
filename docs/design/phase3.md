@@ -47,7 +47,8 @@ public class OrderIdGenerator {
     // 날짜별 시퀀스를 내부 Map으로 관리
     // 같은 날짜에 여러 주문 생성 시 NNNN 순번 증가
 
-    public OrderIdGenerator(LocalDate date)  // 테스트용 날짜 주입
+    public OrderIdGenerator(LocalDate date, List<String> existingOrderIds)  // 기존 주문 ID로 시퀀스 복원
+    public OrderIdGenerator(LocalDate date)  // 테스트용 날짜 주입 (기존 주문 없음)
     public OrderIdGenerator()                // 프로덕션용 — LocalDate.now() 사용
     public String generate()                 // "ORD-YYYYMMDD-NNNN" 형식 반환
 }
@@ -55,6 +56,7 @@ public class OrderIdGenerator {
 
 - `NNNN`은 1부터 시작하는 4자리 0-패딩 숫자 (예: `0001`)
 - 날짜가 바뀌면 순번을 1로 리셋 (날짜별 독립 Map 키)
+- 재시작 시 기존 주문 ID에서 오늘 날짜 최대 시퀀스를 읽어 이어받음 (ID 중복 방지)
 - 생성자 오버로드로 테스트에서 날짜 고정 가능
 
 ### OrderController.java

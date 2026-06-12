@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,6 +37,27 @@ class DatabaseOrderRepositoryTest {
 
         List<Order> confirmed = repo.findByStatus(OrderStatus.CONFIRMED);
         assertEquals(1, confirmed.size());
+    }
+
+    @Test
+    @DisplayName("DatabaseOrderRepository가 orderedAt을 올바르게 복원한다")
+    void restoresOrderedAtFromDatabase() throws Exception {
+        LocalDateTime historical = LocalDateTime.of(2024, 1, 15, 10, 30, 0);
+        try (java.sql.PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO orders (order_id, sample_id, customer_name, quantity, status, ordered_at, actual_qty) VALUES (?,?,?,?,?,?,?)")) {
+            ps.setString(1, "ORD-001");
+            ps.setString(2, "S-001");
+            ps.setString(3, "고객A");
+            ps.setInt(4, 10);
+            ps.setString(5, "RESERVED");
+            ps.setString(6, historical.toString());
+            ps.setInt(7, 0);
+            ps.executeUpdate();
+        }
+
+        Order found = repo.findById("ORD-001").orElseThrow();
+
+        assertEquals(historical, found.getOrderedAt());
     }
 
     @Test

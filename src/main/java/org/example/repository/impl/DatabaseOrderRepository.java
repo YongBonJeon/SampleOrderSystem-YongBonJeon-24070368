@@ -85,9 +85,10 @@ public class DatabaseOrderRepository implements OrderRepository {
                 rs.getInt("quantity"),
                 OrderStatus.valueOf(rs.getString("status"))
         );
+        order.setOrderedAt(LocalDateTime.parse(rs.getString("ordered_at")));
         order.setActualQty(rs.getInt("actual_qty"));
         String startedAt = rs.getString("started_at");
-        if (startedAt != null) order.setStartedAt(java.time.LocalDateTime.parse(startedAt));
+        if (startedAt != null) order.setStartedAt(LocalDateTime.parse(startedAt));
         return order;
     }
 }

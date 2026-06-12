@@ -3,6 +3,7 @@ package org.example.util;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class OrderIdGenerator {
@@ -12,12 +13,26 @@ public class OrderIdGenerator {
     private final LocalDate date;
     private final Map<String, Integer> sequences = new HashMap<>();
 
-    public OrderIdGenerator(LocalDate date) {
+    public OrderIdGenerator(LocalDate date, List<String> existingOrderIds) {
         this.date = date;
+        String dateKey = date.format(DATE_FORMAT);
+        String prefix = "ORD-" + dateKey + "-";
+        existingOrderIds.stream()
+                .filter(id -> id.startsWith(prefix))
+                .mapToInt(id -> {
+                    try { return Integer.parseInt(id.substring(prefix.length())); }
+                    catch (NumberFormatException e) { return 0; }
+                })
+                .max()
+                .ifPresent(max -> sequences.put(dateKey, max));
+    }
+
+    public OrderIdGenerator(LocalDate date) {
+        this(date, List.of());
     }
 
     public OrderIdGenerator() {
-        this(LocalDate.now());
+        this(LocalDate.now(), List.of());
     }
 
     public String generate() {
