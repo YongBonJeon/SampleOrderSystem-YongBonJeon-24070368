@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import java.util.List;
 
 public class SampleOutputView {
-    private static final String SEPARATOR = "------------------------------------------------------------";
+    private static final String SEPARATOR = "------------------------------------------------------------------------";
 
     private final PrintStream out;
 
@@ -30,12 +30,44 @@ public class SampleOutputView {
         }
         out.printf("%n등록 시료 목록 (총 %d종)%n", list.size());
         out.println(SEPARATOR);
-        out.printf(" %-8s %-22s %-14s %-8s %s%n", "ID", "시료명", "평균생산시간", "수율", "현재재고");
+        out.printf(" %s %s %s %s %s%n",
+                padRight("ID", 10),
+                padRight("시료명", 24),
+                padRight("평균생산시간", 14),
+                padRight("수율", 8),
+                "현재재고");
         for (Sample s : list) {
-            out.printf(" %-8s %-22s %.1f min/ea   %.2f   %d ea%n",
-                    s.getId(), s.getName(), s.getAvgProductionTime(), s.getYieldRate(), s.getStock());
+            out.printf(" %s %s %s %s %d ea%n",
+                    padRight(s.getId(), 10),
+                    padRight(s.getName(), 24),
+                    padRight(String.format("%.1f min/ea", s.getAvgProductionTime()), 14),
+                    padRight(String.format("%.2f", s.getYieldRate()), 8),
+                    s.getStock());
         }
         out.println(SEPARATOR);
+    }
+
+    // 한글(2칸)을 고려한 display width 계산
+    private static int displayWidth(String s) {
+        int w = 0;
+        for (char c : s.toCharArray()) {
+            w += isWideChar(c) ? 2 : 1;
+        }
+        return w;
+    }
+
+    private static boolean isWideChar(char c) {
+        return (c >= '가' && c <= '힣')   // 한글 음절
+            || (c >= 'ᄀ' && c <= 'ᇿ')   // 한글 자모
+            || (c >= '　' && c <= '鿿')   // CJK
+            || (c >= '豈' && c <= '﫿')
+            || (c >= '！' && c <= '｠')
+            || (c >= '￠' && c <= '￦');
+    }
+
+    private static String padRight(String s, int targetWidth) {
+        int padding = Math.max(0, targetWidth - displayWidth(s));
+        return s + " ".repeat(padding);
     }
 
     public void showRegisterConfirm(Sample sample) {
