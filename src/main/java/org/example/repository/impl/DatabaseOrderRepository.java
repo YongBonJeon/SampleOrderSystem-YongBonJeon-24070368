@@ -20,8 +20,8 @@ public class DatabaseOrderRepository implements OrderRepository {
     @Override
     public Order save(Order order) {
         String sql = """
-                MERGE INTO orders (order_id, sample_id, customer_name, quantity, status, ordered_at)
-                VALUES (?,?,?,?,?,?)
+                MERGE INTO orders (order_id, sample_id, customer_name, quantity, status, ordered_at, actual_qty)
+                VALUES (?,?,?,?,?,?,?)
                 """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, order.getOrderId());
@@ -30,6 +30,7 @@ public class DatabaseOrderRepository implements OrderRepository {
             ps.setInt(4, order.getQuantity());
             ps.setString(5, order.getStatus().name());
             ps.setString(6, order.getOrderedAt().toString());
+            ps.setInt(7, order.getActualQty());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("주문 저장 실패", e);
@@ -83,8 +84,7 @@ public class DatabaseOrderRepository implements OrderRepository {
                 rs.getInt("quantity"),
                 OrderStatus.valueOf(rs.getString("status"))
         );
-        // orderedAt 복원: Order 생성자가 now()로 설정하므로 별도 setter 필요
-        // 현재 Order 모델에 setOrderedAt이 없으므로 저장된 값은 조회에만 활용
+        order.setActualQty(rs.getInt("actual_qty"));
         return order;
     }
 }

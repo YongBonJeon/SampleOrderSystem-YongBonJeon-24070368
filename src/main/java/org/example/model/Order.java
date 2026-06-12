@@ -10,6 +10,7 @@ public class Order implements java.io.Serializable {
     private int quantity;
     private OrderStatus status;
     private LocalDateTime orderedAt;
+    private int actualQty;
 
     public Order(String orderId, String sampleId, String customerName, int quantity, OrderStatus status) {
         this.orderId = orderId;
@@ -27,4 +28,6 @@ public class Order implements java.io.Serializable {
     public OrderStatus getStatus()    { return status; }
     public void setStatus(OrderStatus status) { this.status = status; }
     public LocalDateTime getOrderedAt() { return orderedAt; }
+    public int getActualQty()           { return actualQty; }
+    public void setActualQty(int actualQty) { this.actualQty = actualQty; }
 }

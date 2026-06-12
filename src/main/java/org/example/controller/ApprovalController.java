@@ -72,6 +72,7 @@ public class ApprovalController {
                     shortage, sample.getYieldRate(), sample.getAvgProductionTime());
             productionQueue.enqueue(job);
             order.setStatus(OrderStatus.PRODUCING);
+            order.setActualQty(job.getActualQty());
             orderRepository.update(order);
             out.showProducing(order, job);
         }

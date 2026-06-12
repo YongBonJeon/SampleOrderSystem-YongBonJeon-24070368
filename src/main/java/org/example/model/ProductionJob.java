@@ -22,6 +22,16 @@ public class ProductionJob {
         this.totalTime = avgProductionTime * this.actualQty;
     }
 
+    // 재시작 후 큐 복원 시 사용 — actualQty를 직접 지정
+    public ProductionJob(String orderId, String sampleId, int actualQty, double avgProductionTime) {
+        this.orderId = orderId;
+        this.sampleId = sampleId;
+        this.shortage = 0;
+        this.avgProductionTime = avgProductionTime;
+        this.actualQty = actualQty;
+        this.totalTime = avgProductionTime * actualQty;
+    }
+
     public String getOrderId()            { return orderId; }
     public String getSampleId()           { return sampleId; }
     public int getShortage()              { return shortage; }

@@ -36,7 +36,8 @@ public class DatabaseConfig {
                     customer_name VARCHAR(200) NOT NULL,
                     quantity      INT          NOT NULL,
                     status        VARCHAR(20)  NOT NULL,
-                    ordered_at    VARCHAR(30)  NOT NULL
+                    ordered_at    VARCHAR(30)  NOT NULL,
+                    actual_qty    INT          NOT NULL DEFAULT 0
                 )
                 """);
         }

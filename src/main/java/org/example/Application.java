@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.controller.ApprovalController;
+import org.example.controller.ProductionQueueRestorer;
 import org.example.controller.MainController;
 import org.example.controller.MonitoringController;
 import org.example.controller.OrderController;
@@ -38,6 +39,7 @@ public class Application {
         SampleRepository sampleRepository = factory.createSampleRepository();
         OrderRepository orderRepository = factory.createOrderRepository();
         ProductionQueue productionQueue = new ProductionQueue();
+        ProductionQueueRestorer.restore(sampleRepository, orderRepository, productionQueue);
 
         SampleController sampleController = new SampleController(
                 sampleRepository,
