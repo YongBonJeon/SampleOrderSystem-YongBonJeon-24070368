@@ -1,11 +1,15 @@
 package org.example;
 
+import org.example.controller.ApprovalController;
 import org.example.controller.MainController;
 import org.example.controller.OrderController;
 import org.example.controller.SampleController;
+import org.example.queue.ProductionQueue;
 import org.example.repository.impl.InMemoryOrderRepository;
 import org.example.repository.impl.InMemorySampleRepository;
 import org.example.util.OrderIdGenerator;
+import org.example.view.ApprovalInputView;
+import org.example.view.ApprovalOutputView;
 import org.example.view.InputView;
 import org.example.view.OrderInputView;
 import org.example.view.OrderOutputView;
@@ -20,6 +24,7 @@ public class Application {
         Scanner scanner = new Scanner(System.in);
         InMemorySampleRepository sampleRepository = new InMemorySampleRepository();
         InMemoryOrderRepository orderRepository = new InMemoryOrderRepository();
+        ProductionQueue productionQueue = new ProductionQueue();
 
         SampleController sampleController = new SampleController(
                 sampleRepository,
@@ -35,13 +40,22 @@ public class Application {
                 new OrderOutputView(System.out)
         );
 
+        ApprovalController approvalController = new ApprovalController(
+                sampleRepository,
+                orderRepository,
+                productionQueue,
+                new ApprovalInputView(scanner),
+                new ApprovalOutputView(System.out)
+        );
+
         new MainController(
                 sampleRepository,
                 orderRepository,
                 new InputView(scanner),
                 new OutputView(),
                 sampleController,
-                orderController
+                orderController,
+                approvalController
         ).run();
     }
 }

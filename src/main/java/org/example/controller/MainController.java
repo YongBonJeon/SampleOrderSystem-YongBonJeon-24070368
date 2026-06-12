@@ -12,16 +12,18 @@ public class MainController {
     private final OutputView out;
     private final SampleController sampleController;
     private final OrderController orderController;
+    private final ApprovalController approvalController;
 
     public MainController(SampleRepository sampleRepository, OrderRepository orderRepository,
                           InputView in, OutputView out, SampleController sampleController,
-                          OrderController orderController) {
+                          OrderController orderController, ApprovalController approvalController) {
         this.sampleRepository = sampleRepository;
         this.orderRepository = orderRepository;
         this.in = in;
         this.out = out;
         this.sampleController = sampleController;
         this.orderController = orderController;
+        this.approvalController = approvalController;
     }
 
     public void run() {
@@ -31,7 +33,7 @@ public class MainController {
             switch (input) {
                 case "1" -> sampleController.run();
                 case "2" -> orderController.run();
-                case "3" -> out.showNotImplemented();
+                case "3" -> approvalController.run();
                 case "4" -> out.showNotImplemented();
                 case "5" -> out.showNotImplemented();
                 case "6" -> out.showNotImplemented();
