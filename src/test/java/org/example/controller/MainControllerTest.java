@@ -7,10 +7,14 @@ import org.example.util.OrderIdGenerator;
 import org.example.view.ApprovalInputView;
 import org.example.view.ApprovalOutputView;
 import org.example.view.InputView;
+import org.example.view.MonitoringInputView;
+import org.example.view.MonitoringOutputView;
 import org.example.view.OrderInputView;
 import org.example.view.OrderOutputView;
 import org.example.view.OutputView;
 import org.example.view.ProductionLineOutputView;
+import org.example.view.ReleaseInputView;
+import org.example.view.ReleaseOutputView;
 import org.example.view.SampleInputView;
 import org.example.view.SampleOutputView;
 import org.junit.jupiter.api.Test;
@@ -65,6 +69,25 @@ class MainControllerTest {
         );
     }
 
+    private MonitoringController stubMonitoringController() {
+        Scanner scanner = new Scanner(new ByteArrayInputStream("0\n".getBytes(StandardCharsets.UTF_8)));
+        return new MonitoringController(
+                new InMemorySampleRepository(),
+                new InMemoryOrderRepository(),
+                new MonitoringInputView(scanner),
+                new MonitoringOutputView(new PrintStream(new ByteArrayOutputStream()))
+        );
+    }
+
+    private ReleaseController stubReleaseController() {
+        Scanner scanner = new Scanner(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)));
+        return new ReleaseController(
+                new InMemoryOrderRepository(),
+                new ReleaseInputView(scanner),
+                new ReleaseOutputView(new PrintStream(new ByteArrayOutputStream()))
+        );
+    }
+
     private MainController controllerWith(String input) {
         InputView inputView = new InputView(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -77,7 +100,9 @@ class MainControllerTest {
                 stubSampleController(),
                 stubOrderController(),
                 stubApprovalController(),
-                stubProductionLineController()
+                stubProductionLineController(),
+                stubMonitoringController(),
+                stubReleaseController()
         );
     }
 
@@ -93,7 +118,9 @@ class MainControllerTest {
                 stubSampleController(),
                 stubOrderController(),
                 stubApprovalController(),
-                stubProductionLineController()
+                stubProductionLineController(),
+                stubMonitoringController(),
+                stubReleaseController()
         ).run();
         return baos.toString(StandardCharsets.UTF_8);
     }
@@ -116,13 +143,5 @@ class MainControllerTest {
 
         assertTrue(output.contains("ERROR") || output.contains("올바른"),
                 "잘못된 입력에 대한 오류 메시지가 출력되어야 한다");
-    }
-
-    @Test
-    void run_withMenuInput_printsNotImplementedMessage() {
-        String output = outputOf("6\n0\n"); // 메뉴 6(출고 처리)은 아직 미구현
-
-        assertTrue(output.contains("미구현") || output.contains("준비"),
-                "미구현 메뉴는 안내 메시지를 출력해야 한다");
     }
 }

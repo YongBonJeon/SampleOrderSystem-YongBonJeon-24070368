@@ -14,11 +14,15 @@ public class MainController {
     private final OrderController orderController;
     private final ApprovalController approvalController;
     private final ProductionLineController productionLineController;
+    private final MonitoringController monitoringController;
+    private final ReleaseController releaseController;
 
     public MainController(SampleRepository sampleRepository, OrderRepository orderRepository,
                           InputView in, OutputView out, SampleController sampleController,
                           OrderController orderController, ApprovalController approvalController,
-                          ProductionLineController productionLineController) {
+                          ProductionLineController productionLineController,
+                          MonitoringController monitoringController,
+                          ReleaseController releaseController) {
         this.sampleRepository = sampleRepository;
         this.orderRepository = orderRepository;
         this.in = in;
@@ -27,6 +31,8 @@ public class MainController {
         this.orderController = orderController;
         this.approvalController = approvalController;
         this.productionLineController = productionLineController;
+        this.monitoringController = monitoringController;
+        this.releaseController = releaseController;
     }
 
     public void run() {
@@ -37,9 +43,9 @@ public class MainController {
                 case "1" -> sampleController.run();
                 case "2" -> orderController.run();
                 case "3" -> approvalController.run();
-                case "4" -> out.showNotImplemented();
+                case "4" -> monitoringController.run();
                 case "5" -> productionLineController.run();
-                case "6" -> out.showNotImplemented();
+                case "6" -> releaseController.run();
                 case "0" -> { out.println("종료합니다."); return; }
                 default  -> out.showError("올바른 번호를 입력하세요.");
             }
