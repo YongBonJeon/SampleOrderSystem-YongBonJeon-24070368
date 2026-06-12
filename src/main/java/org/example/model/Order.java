@@ -11,6 +11,7 @@ public class Order implements java.io.Serializable {
     private OrderStatus status;
     private LocalDateTime orderedAt;
     private int actualQty;
+    private LocalDateTime startedAt;
 
     public Order(String orderId, String sampleId, String customerName, int quantity, OrderStatus status) {
         this.orderId = orderId;
@@ -28,6 +29,8 @@ public class Order implements java.io.Serializable {
     public OrderStatus getStatus()    { return status; }
     public void setStatus(OrderStatus status) { this.status = status; }
     public LocalDateTime getOrderedAt() { return orderedAt; }
-    public int getActualQty()           { return actualQty; }
-    public void setActualQty(int actualQty) { this.actualQty = actualQty; }
+    public int getActualQty()                        { return actualQty; }
+    public void setActualQty(int actualQty)          { this.actualQty = actualQty; }
+    public LocalDateTime getStartedAt()              { return startedAt; }
+    public void setStartedAt(LocalDateTime startedAt){ this.startedAt = startedAt; }
 }

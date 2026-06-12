@@ -4,6 +4,7 @@ import org.example.model.Order;
 import org.example.model.OrderStatus;
 import org.example.model.ProductionJob;
 import org.example.model.Sample;
+import java.time.LocalDateTime;
 import org.example.queue.ProductionQueue;
 import org.example.repository.impl.InMemoryOrderRepository;
 import org.example.repository.impl.InMemorySampleRepository;
@@ -51,5 +52,24 @@ class ProductionQueueRestorationTest {
         ProductionJob job = restoredQueue.peek().get();
         assertEquals("ORD-001", job.getOrderId());
         assertEquals(210, job.getActualQty());
+    }
+
+    @Test
+    @DisplayName("복원된 작업의 startedAt이 저장된 시각과 일치한다")
+    void restoreProductionQueue_preservesStartedAt() {
+        LocalDateTime originalStartedAt = LocalDateTime.of(2026, 6, 1, 10, 0, 0);
+        InMemorySampleRepository sampleRepo = new InMemorySampleRepository();
+        sampleRepo.save(new Sample("S-001", "SiC 기판", 0.5, 0.9, 30));
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+
+        Order order = new Order("ORD-001", "S-001", "고객A", 200, OrderStatus.PRODUCING);
+        order.setActualQty(210);
+        order.setStartedAt(originalStartedAt);
+        orderRepo.save(order);
+
+        ProductionQueue restoredQueue = new ProductionQueue();
+        ProductionQueueRestorer.restore(sampleRepo, orderRepo, restoredQueue);
+
+        assertEquals(originalStartedAt, restoredQueue.peek().get().getStartedAt());
     }
 }

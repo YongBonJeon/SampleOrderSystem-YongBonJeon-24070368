@@ -68,6 +68,14 @@ public class ProductionLineController {
         order.setStatus(OrderStatus.CONFIRMED);
         orderRepository.update(order);
 
+        // dequeue가 다음 작업의 startedAt을 설정했으면 해당 order에도 저장
+        productionQueue.peek().ifPresent(next -> {
+            orderRepository.findById(next.getOrderId()).ifPresent(nextOrder -> {
+                nextOrder.setStartedAt(next.getStartedAt());
+                orderRepository.update(nextOrder);
+            });
+        });
+
         out.showCompleted(job, newStock);
     }
 }

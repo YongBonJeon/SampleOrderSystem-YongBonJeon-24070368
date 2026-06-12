@@ -73,6 +73,7 @@ public class ApprovalController {
             productionQueue.enqueue(job);
             order.setStatus(OrderStatus.PRODUCING);
             order.setActualQty(job.getActualQty());
+            order.setStartedAt(job.getStartedAt()); // 큐 첫 번째면 실제 시각, 대기면 null
             orderRepository.update(order);
             out.showProducing(order, job);
         }

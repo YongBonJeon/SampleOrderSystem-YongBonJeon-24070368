@@ -20,8 +20,8 @@ public class DatabaseOrderRepository implements OrderRepository {
     @Override
     public Order save(Order order) {
         String sql = """
-                MERGE INTO orders (order_id, sample_id, customer_name, quantity, status, ordered_at, actual_qty)
-                VALUES (?,?,?,?,?,?,?)
+                MERGE INTO orders (order_id, sample_id, customer_name, quantity, status, ordered_at, actual_qty, started_at)
+                VALUES (?,?,?,?,?,?,?,?)
                 """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, order.getOrderId());
@@ -31,6 +31,7 @@ public class DatabaseOrderRepository implements OrderRepository {
             ps.setString(5, order.getStatus().name());
             ps.setString(6, order.getOrderedAt().toString());
             ps.setInt(7, order.getActualQty());
+            ps.setString(8, order.getStartedAt() != null ? order.getStartedAt().toString() : null);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("주문 저장 실패", e);
@@ -85,6 +86,8 @@ public class DatabaseOrderRepository implements OrderRepository {
                 OrderStatus.valueOf(rs.getString("status"))
         );
         order.setActualQty(rs.getInt("actual_qty"));
+        String startedAt = rs.getString("started_at");
+        if (startedAt != null) order.setStartedAt(java.time.LocalDateTime.parse(startedAt));
         return order;
     }
 }

@@ -23,6 +23,7 @@ public class ProductionQueueRestorer {
                             order.getOrderId(), order.getSampleId(),
                             order.getActualQty(), sample.getAvgProductionTime());
                     queue.enqueue(job);
+                    job.setStartedAt(order.getStartedAt()); // enqueue가 덮어쓴 시각을 원래 값으로 복원
                 }));
     }
 }
