@@ -19,8 +19,8 @@ public class ApprovalOutputView {
         out.println("--------------------------------------------------------------");
         out.println(" 주문번호              시료 ID   고객명           수량");
         for (Order o : orders) {
-            out.printf(" %-22s %-9s %-16s %d ea%n",
-                    o.getOrderId(), o.getSampleId(), o.getCustomerName(), o.getQuantity());
+            out.printf(" %-22s %-9s %s %d ea%n",
+                    o.getOrderId(), o.getSampleId(), padRight(o.getCustomerName(), 16), o.getQuantity());
         }
         out.println("--------------------------------------------------------------");
     }
@@ -49,5 +49,25 @@ public class ApprovalOutputView {
 
     public void showRejected(Order order) {
         out.printf("주문 %s 거절 완료 → REJECTED%n", order.getOrderId());
+    }
+
+    private static String padRight(String s, int targetWidth) {
+        int padding = Math.max(0, targetWidth - displayWidth(s));
+        return s + " ".repeat(padding);
+    }
+
+    private static int displayWidth(String s) {
+        int w = 0;
+        for (char c : s.toCharArray()) w += isWideChar(c) ? 2 : 1;
+        return w;
+    }
+
+    private static boolean isWideChar(char c) {
+        return (c >= '가' && c <= '힣')
+            || (c >= 'ᄀ' && c <= 'ᇿ')
+            || (c >= '　' && c <= '鿿')
+            || (c >= '豈' && c <= '﫿')
+            || (c >= '！' && c <= '｠')
+            || (c >= '￠' && c <= '￦');
     }
 }
