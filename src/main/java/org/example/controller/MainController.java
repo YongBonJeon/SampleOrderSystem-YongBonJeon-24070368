@@ -11,14 +11,17 @@ public class MainController {
     private final InputView in;
     private final OutputView out;
     private final SampleController sampleController;
+    private final OrderController orderController;
 
     public MainController(SampleRepository sampleRepository, OrderRepository orderRepository,
-                          InputView in, OutputView out, SampleController sampleController) {
+                          InputView in, OutputView out, SampleController sampleController,
+                          OrderController orderController) {
         this.sampleRepository = sampleRepository;
         this.orderRepository = orderRepository;
         this.in = in;
         this.out = out;
         this.sampleController = sampleController;
+        this.orderController = orderController;
     }
 
     public void run() {
@@ -27,7 +30,7 @@ public class MainController {
             String input = in.readLine();
             switch (input) {
                 case "1" -> sampleController.run();
-                case "2" -> out.showNotImplemented();
+                case "2" -> orderController.run();
                 case "3" -> out.showNotImplemented();
                 case "4" -> out.showNotImplemented();
                 case "5" -> out.showNotImplemented();

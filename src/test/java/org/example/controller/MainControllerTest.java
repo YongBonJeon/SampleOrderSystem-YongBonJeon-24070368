@@ -2,7 +2,10 @@ package org.example.controller;
 
 import org.example.repository.impl.InMemoryOrderRepository;
 import org.example.repository.impl.InMemorySampleRepository;
+import org.example.util.OrderIdGenerator;
 import org.example.view.InputView;
+import org.example.view.OrderInputView;
+import org.example.view.OrderOutputView;
 import org.example.view.OutputView;
 import org.example.view.SampleInputView;
 import org.example.view.SampleOutputView;
@@ -27,6 +30,17 @@ class MainControllerTest {
         );
     }
 
+    private OrderController stubOrderController() {
+        Scanner scanner = new Scanner(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)));
+        return new OrderController(
+                new InMemorySampleRepository(),
+                new InMemoryOrderRepository(),
+                new OrderIdGenerator(),
+                new OrderInputView(scanner),
+                new OrderOutputView(new PrintStream(new ByteArrayOutputStream()))
+        );
+    }
+
     private MainController controllerWith(String input) {
         InputView inputView = new InputView(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -36,7 +50,8 @@ class MainControllerTest {
                 new InMemoryOrderRepository(),
                 inputView,
                 outputView,
-                stubSampleController()
+                stubSampleController(),
+                stubOrderController()
         );
     }
 
@@ -49,7 +64,8 @@ class MainControllerTest {
                 new InMemoryOrderRepository(),
                 inputView,
                 outputView,
-                stubSampleController()
+                stubSampleController(),
+                stubOrderController()
         ).run();
         return baos.toString(StandardCharsets.UTF_8);
     }
@@ -76,7 +92,7 @@ class MainControllerTest {
 
     @Test
     void run_withMenuInput_printsNotImplementedMessage() {
-        String output = outputOf("2\n0\n"); // 메뉴 2는 Phase 2에서 미구현
+        String output = outputOf("3\n0\n"); // 메뉴 3(주문 승인/거절)은 아직 미구현
 
         assertTrue(output.contains("미구현") || output.contains("준비"),
                 "미구현 메뉴는 안내 메시지를 출력해야 한다");
