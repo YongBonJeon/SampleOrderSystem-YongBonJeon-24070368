@@ -13,10 +13,12 @@ public class MainController {
     private final SampleController sampleController;
     private final OrderController orderController;
     private final ApprovalController approvalController;
+    private final ProductionLineController productionLineController;
 
     public MainController(SampleRepository sampleRepository, OrderRepository orderRepository,
                           InputView in, OutputView out, SampleController sampleController,
-                          OrderController orderController, ApprovalController approvalController) {
+                          OrderController orderController, ApprovalController approvalController,
+                          ProductionLineController productionLineController) {
         this.sampleRepository = sampleRepository;
         this.orderRepository = orderRepository;
         this.in = in;
@@ -24,6 +26,7 @@ public class MainController {
         this.sampleController = sampleController;
         this.orderController = orderController;
         this.approvalController = approvalController;
+        this.productionLineController = productionLineController;
     }
 
     public void run() {
@@ -35,7 +38,7 @@ public class MainController {
                 case "2" -> orderController.run();
                 case "3" -> approvalController.run();
                 case "4" -> out.showNotImplemented();
-                case "5" -> out.showNotImplemented();
+                case "5" -> productionLineController.run();
                 case "6" -> out.showNotImplemented();
                 case "0" -> { out.println("종료합니다."); return; }
                 default  -> out.showError("올바른 번호를 입력하세요.");
